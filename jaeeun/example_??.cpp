@@ -24,9 +24,8 @@ public:
     // 인식 거리
     virtual float mode_us_dist_cm()
     {
-        return 8.0;
+        return 9;
     }
-    
     bool get_touch_pressed()
     {
         return touch_q.is_pressed();
@@ -128,9 +127,8 @@ bool having=true;
 
 void Crain::right(){
     having=false;
-    b.set_speed_sp(7*get_speed());
+    b.set_speed_sp(5*get_speed());
     for (int i = 0; i<1400; i++){
-        cout<< ultra.distance_centimeters() <<endl;
         if (ultra.distance_centimeters() < mode_us_dist_cm()){
                 having = true;
                 break;}
@@ -143,14 +141,14 @@ void Crain::right(){
 
 // 남은 거리 이동
 void Crain::right1(){
-    b.set_speed_sp(7*get_speed());
+    b.set_speed_sp(3*get_speed());
     while(Crain::get_touch_pressed()==false){
                 b.run_forever();}
         sleep();
 }
 
 void Crain::left(){
-    b.set_speed_sp(-7*get_speed());
+    b.set_speed_sp(-5*get_speed());
     for (int i = 0; i<0; i++){
         //cout << i << endl;
                 b.run_forever();

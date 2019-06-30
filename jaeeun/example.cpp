@@ -24,9 +24,8 @@ public:
     // 인식 거리
     virtual float mode_us_dist_cm()
     {
-        return 8.5;
+        return 8.1;
     }
-    
     bool get_touch_pressed()
     {
         return touch_q.is_pressed();
@@ -128,7 +127,7 @@ bool having=true;
 
 void Crain::right(){
     having=false;
-    b.set_speed_sp(800);
+    b.set_speed_sp(5*get_speed());
     for (int i = 0; i<1400; i++){
         if (ultra.distance_centimeters() < mode_us_dist_cm()){
                 having = true;
@@ -142,14 +141,14 @@ void Crain::right(){
 
 // 남은 거리 이동
 void Crain::right1(){
-    b.set_speed_sp(800);
+    b.set_speed_sp(3*get_speed());
     while(Crain::get_touch_pressed()==false){
                 b.run_forever();}
         sleep();
 }
 
 void Crain::left(){
-    b.set_speed_sp(800);
+    b.set_speed_sp(-5*get_speed());
     for (int i = 0; i<0; i++){
         //cout << i << endl;
                 b.run_forever();
@@ -158,6 +157,18 @@ void Crain::left(){
         sleep();
 }
             
+//짚기 위해 옆으로 살작 이동하는 것
+// void Crain::left1(){
+//             b.set_speed_sp(-1*get_speed());
+//             for (int i = 0; i<200; i++){
+//                 //if (ultra.distance_centimeters() < mode_us_dist_cm())
+//                 //break;
+//                 cout << i << endl;
+//                 b.run_forever();
+//             }  
+            
+//         sleep();
+// }
 
 void Crain::up(){ //기존 up:600
             a.set_speed_sp(-1*get_speed());
@@ -165,6 +176,10 @@ void Crain::up(){ //기존 up:600
             a.set_position_sp(-600).run_to_abs_pos();
             }
             
+            // for (int i = 0; i <j; i++){
+            //     cout << i << endl;
+            //     a.run_forever();
+            // }    
             
         sleep();
 }

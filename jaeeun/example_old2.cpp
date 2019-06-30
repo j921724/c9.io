@@ -104,19 +104,18 @@ public:
     void left1();
     void right();
     void right1(int j);
-    void up(int j);
-    void down(int j);
+    void up();
+    void down();
     void pick();
     void drop();
     void sleep();
 };
 
-int where;
+
 void Crain::right(){
     b.set_speed_sp(get_speed());
     for (int i = 0; i<1400; i++){
         if (ultra.distance_centimeters() < mode_us_dist_cm())
-                where = i;
                 break;
                 cout << i << endl;
                 b.run_forever();
@@ -129,7 +128,7 @@ void Crain::right(){
 // 남은 거리 이동
 void Crain::right1(int j){
     b.set_speed_sp(get_speed());
-    for (int i= 0; i < 1600-j; i++){
+    for (int i= 0; i < 1550-j; i++){
         // if (ultra.distance_centimeters() < mode_us_dist_cm())
         //         break;
                 cout << i << endl;
@@ -142,7 +141,7 @@ void Crain::right1(int j){
 
 void Crain::left(){
             b.set_speed_sp(-1*get_speed());
-            for (int i = 0; i<1600; i++){
+            for (int i = 0; i<1700; i++){
                 //if (ultra.distance_centimeters() < mode_us_dist_cm())
                 //break;
                 cout << i << endl;
@@ -155,7 +154,7 @@ void Crain::left(){
 // 짚기 위해 옆으로 살작 이동하는 것
 void Crain::left1(){
             b.set_speed_sp(-1*get_speed());
-            for (int i = 0; i<200; i++){
+            for (int i = 0; i<100; i++){
                 //if (ultra.distance_centimeters() < mode_us_dist_cm())
                 //break;
                 cout << i << endl;
@@ -165,9 +164,9 @@ void Crain::left1(){
         sleep();
 }
 
-void Crain::up(int j){ //기존 up:600
+void Crain::up(){
             a.set_speed_sp(-1*get_speed());
-            for (int i = 0; i <j; i++){
+            for (int i = 0; i <600; i++){
                 cout << i << endl;
                 a.run_forever();
             }    
@@ -175,9 +174,9 @@ void Crain::up(int j){ //기존 up:600
         sleep();
 }
 
-void Crain::down(int j){ // 기존 down: 300
+void Crain::down(){
             a.set_speed_sp(get_speed());
-            for (int i = 0; i<j; i++){
+            for (int i = 0; i<300; i++){
                 cout << i << endl;
                 a.run_forever();
             }
@@ -186,41 +185,68 @@ void Crain::down(int j){ // 기존 down: 300
 }
 
 void Crain::pick(){
-        down(60);
+    down();
+    a.set_speed_sp(get_speed());
+    for (int i=0; i<300; i++){
+        while(100<i<200){
+            c.set_speed_sp(0.4*get_speed());
+            c.run_timed();
+        }
+        a.run_forever();
+    }
+    sleep();
+}
+    
+//     down();
+//     a.set_speed_sp(get_speed());
+//     for (int i=0; i<300; i++){
+//         while(100<i<200){
+//             c.set_speed_sp(0.4*get_speed());
+//             c.run_forever();
+//         }
+//         a.run_forever();
+//     }
+//     sleep();
+// }
+ 
+    
+/*        
         a.set_speed_sp(get_speed());
-        c.set_speed_sp(-0.5*get_speed());
-        for (int i = 0; i<250; i++){
+        c.set_speed_sp(-1*get_speed());
+        for (int i = 0; i<350; i++){
             cout << i << endl;
-            c.run_forever();
-            if(i>200)
             a.run_forever();
+            if(i>50){
+            c.run_forever();
+            }
         }
         sleep();
-        down(300);
-        sleep();
-        down(400);
-        sleep();
-        up(800);
+        up();
         sleep();
 }
+*/
+
 
 void Crain::drop(){
         a.set_speed_sp(-1*get_speed());
-        c.set_speed_sp(0.5*get_speed());
-        down(400);
-        for (int i = 0; i<300; i++){
+        c.set_speed_sp(-0.5*get_speed());
+        down();
+        for (int i = 0; i<400; i++){
             cout << i << endl;
             c.run_forever();
+            if(i>100){
+            a.run_forever();
+            }
         }
         sleep();
-        up(700);
+        //up();
         sleep();
 }
 
 void Crain::sleep(){
         a.set_speed_sp(0);
         b.set_speed_sp(0);
-        for (int i = 0; i<100; i++){
+        for (int i = 0; i<130; i++){
                 cout << "wow" << endl;
             }
             
@@ -247,11 +273,11 @@ void Crain::example_code()
         if(get_up()){
             
         cout<<"hi3"<<endl;
-            up(100);
+            up();
         }
         
         if(get_down()){
-            down(100);
+            down();
         }
         
         if(get_left()){
@@ -264,14 +290,21 @@ void Crain::example_code()
             }
         
         if(get_enter()){
-            up(700);
+            pick();
+            up();
+            //drop();
+            //up();
+            /*
+            up();
             right();
             left1();
             pick();
-            right1(where);
+            right1(700);
             drop();
             left();
-            down(600);
+            down();
+            down();
+            */
         }
        
         cout<<"hi4"<<endl;

@@ -1,4 +1,6 @@
 #include "h_crane.h"
+#include <iostream>
+using namespace std;
 
 class Crain : public CraneCrane
 {
@@ -7,10 +9,11 @@ private:
     ev3dev::motor a;
     ev3dev::motor b; 
     ev3dev::motor c;
+    ev3dev::ultrasonic_sensor ultra;
     
 public:
     // Hardware Configuration
-    Crain():m_speed(0), touch_q(ev3dev::INPUT_2),a(ev3dev::OUTPUT_B), b(ev3dev::OUTPUT_C), c(ev3dev::OUTPUT_A)
+    Crain():m_speed(0), ultra(ev3dev::INPUT_1), touch_q(ev3dev::INPUT_2), a(ev3dev::OUTPUT_B), b(ev3dev::OUTPUT_C), c(ev3dev::OUTPUT_A)
     {
         
     }
@@ -20,6 +23,12 @@ public:
     bool get_touch_pressed()
     {
         return touch_q.is_pressed();
+    }
+    
+    // 인식 거리
+    virtual float mode_us_dist_cm()
+    {
+        return 7.;
     }
     
     virtual bool get_down()
@@ -92,14 +101,13 @@ public:
     }
 public:
     void example_code();
-    void pick();
-    void drop();
 };
-    
-
 
 void Crain::example_code()
 { //This function is for example, you should develop your own logics
+
+
+
     while(get_escape() == false)
     {
         set_down(ev3dev::button::down.pressed());
@@ -109,27 +117,53 @@ void Crain::example_code()
         set_escape(ev3dev::button::back.pressed());
         set_enter(ev3dev::button::enter.pressed());
         
-        if(get_up())
-        {   
-                a.set_speed_sp(-2*get_speed());
+        int i;
+        
+        
+        
+        //sensor 측정, 거리가 10보다 멀면, 내려감 else break.
+        if (ultra.distance_centimeters() < mode_us_dist_cm()){
+            cout<<"yes"<<endl;
+        }
+        else{
+            cout<<"no"<<endl;
+        }
+          
+        cout<<ultra.distance_centimeters()<<endl;
+        
+        if(get_up()){
+        
+            // for (int i = 0; i<300; i++){
+            //     cout << i << endl;
+                a.set_speed_sp(-1*get_speed());
                 a.run_forever();
-        }   
-        if(get_down())
-        {
-                a.set_speed_sp(2*get_speed());
+            }
+        
+        if(get_down()){
+            // for (int i = 0; i<300; i++){
+            //     cout << i << endl;
+                a.set_speed_sp(get_speed());
                 a.run_forever();
+        
         }
-        if(get_left())
-        {
-               b.set_speed_sp(-2*get_speed());
-               b.run_forever();
+        
+        if(get_left()){
+            //for (int i = 0; i<1500; i++){
+                // if (ultra.distance_centimeters() < mode_us_dist_cm())
+                // break;
+                // cout << i << endl;
+                b.set_speed_sp(-1*get_speed());
+                b.run_forever();
         }
-        if(get_right())
-        {
-               b.set_speed_sp(2*get_speed());
-               b.run_forever();
-        }
-       
+        
+        if(get_right()){
+            //for (int i = 0; i<1500; i++){
+                // if (ultra.distance_centimeters() < mode_us_dist_cm())
+                // break;
+                // cout << i << endl;
+                b.set_speed_sp(get_speed());
+                b.run_forever();
+            }
        
         if(!(get_up() | get_down() | get_right() | get_left() | get_enter()))
         {
@@ -137,14 +171,10 @@ void Crain::example_code()
             a.run_forever();
             b.set_speed_sp(0);
             b.run_forever();
-            c.set_speed_sp(0);
-            c.run_forever();
         }
     }
-
     a.stop();
     b.stop();
-    c.stop();
 }
 
 int main()

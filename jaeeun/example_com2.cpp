@@ -9,16 +9,23 @@ private:
     ev3dev::motor a;
     ev3dev::motor b; 
     ev3dev::motor c;
+    ev3dev::ultrasonic_sensor ultra;
     
 public:
     // Hardware Configuration
-    Crain():m_speed(0), touch_q(ev3dev::INPUT_2),a(ev3dev::OUTPUT_B), b(ev3dev::OUTPUT_C), c(ev3dev::OUTPUT_A)
+    Crain():m_pos(0), m_speed(0), ultra(ev3dev::INPUT_1), touch_q(ev3dev::INPUT_2), a(ev3dev::OUTPUT_B), b(ev3dev::OUTPUT_C), c(ev3dev::OUTPUT_A)
     {
         
     }
     
     int m_speed;
+    int m_pos;
     
+    // 인식 거리
+    virtual float mode_us_dist_cm()
+    {
+        return 6;
+    }
     bool get_touch_pressed()
     {
         return touch_q.is_pressed();
@@ -58,6 +65,10 @@ public:
     {
         return 100;
     }
+    
+    virtual int get_pos(){
+        return 100;
+    }
 
     virtual void set_down(bool val)
     {
@@ -92,68 +103,129 @@ public:
     {
         m_speed = val;    
     }
+    
+    virtual void set_pos(int val)
+    {
+        m_pos = val;    
+    }
+    
+    
 public:
     void example_code();
     void left();
+    void left1();
     void right();
-    void up();
-    void down();
+    void right1();
+    void up(int j);
+    void down(int j);
     void pick();
     void drop();
     void sleep();
 };
 
+bool where=true;
+
 void Crain::right(){
-    b.set_speed_sp(-1* get_speed());
-    for (int i = 0; i<500; i++){
-                cout << i << endl;
-                b.run_forever();
+    where=false;
+    b.set_speed_sp(2*get_speed());
+    for (int i = 0; i<1400; i++){
+        if (ultra.distance_centimeters() < mode_us_dist_cm()){
+                where = true;
+                break;}
+        cout << ultra.distance_centimeters() << endl;
+        b.run_forever();
         
     }
+    
+        sleep();
+}
+
+// 남은 거리 이동
+void Crain::right1(){
+    b.set_speed_sp(2*get_speed());
+    while(Crain::get_touch_pressed()==false){
+                b.run_forever();}
+        sleep();
 }
 
 void Crain::left(){
-            b.set_speed_sp(get_speed());
-            for (int i = 0; i<500; i++){
-                cout << i << endl;
+            b.set_speed_sp(-2*get_speed());
+            // b.set_position_sp(6*get_pos()).run_to_abs_pos();
+            for (int i = 0; i<1000; i++){
+                //if (ultra.distance_centimeters() < mode_us_dist_cm())
+                //break;
+                cout << "ho" << endl;
                 b.run_forever();
             }
-    
+            
+        sleep();
 }
+            
+//짚기 위해 옆으로 살작 이동하는 것
+// void Crain::left1(){
+//             b.set_speed_sp(-1*get_speed());
+//             for (int i = 0; i<200; i++){
+//                 //if (ultra.distance_centimeters() < mode_us_dist_cm())
+//                 //break;
+//                 cout << i << endl;
+//                 b.run_forever();
+//             }  
+            
+//         sleep();
+// }
 
-void Crain::up(){
+void Crain::up(int j){ //기존 up:600
             a.set_speed_sp(-1*get_speed());
-            for (int i = 0; i <400; i++){
+            for (int i = 0; i <j; i++){
                 cout << i << endl;
                 a.run_forever();
             }    
+            
+        sleep();
 }
 
-void Crain::down(){
+void Crain::down(int j){ // 기존 down: 300
             a.set_speed_sp(get_speed());
-            for (int i = 0; i<400; i++){
+            for (int i = 0; i<j; i++){
                 cout << i << endl;
                 a.run_forever();
             }
+            
+        sleep();
 }
 
 void Crain::pick(){
+        down(60);
         a.set_speed_sp(get_speed());
-        c.set_speed_sp(-1*get_speed());
-        for (int i = 0; i<500; i++){
+        c.set_speed_sp(-0.6*get_speed());
+        for (int i = 0; i<300; i++){
             cout << i << endl;
-            a.run_forever();
             c.run_forever();
+            if(i>230)
+            a.run_forever();
         }
+        sleep();
+        down(200);
+        sleep();
+        down(200);
+        sleep();
+        up(650);
+        sleep();
 }
 
 void Crain::drop(){
-        c.set_speed_sp(get_speed());
-        for (int i = 0; i<500; i++){
+        a.set_speed_sp(-1*get_speed());
+        c.set_speed_sp(0.5*get_speed());
+        down(400);
+        for (int i = 0; i<300; i++){
             cout << i << endl;
             c.run_forever();
-            
         }
+        sleep();
+        down(200);
+        sleep();
+        up(700);
+        sleep();
 }
 
 void Crain::sleep(){
@@ -181,16 +253,16 @@ void Crain::example_code()
         set_left(ev3dev::button::left.pressed());
         set_escape(ev3dev::button::back.pressed());
         set_enter(ev3dev::button::enter.pressed());
-        
+        int j;
         cout<<"hi2"<<endl;//여기서 멈춤
         if(get_up()){
             
         cout<<"hi3"<<endl;
-            up();
+            up(100);
         }
         
         if(get_down()){
-            down();
+            down(100);
         }
         
         if(get_left()){
@@ -203,28 +275,17 @@ void Crain::example_code()
             }
         
         if(get_enter()){
+            while(where==true){
+            up(700);
+            sleep();
             right();
-            
-            sleep();
-            down();
-            // for(int i=0; i<100; i++){
-            //     cout<<"wow"<<endl;
-            // }
-            sleep();
+            // left1();
             pick();
-            sleep();
-            up();
-            sleep();
-            left();            
-            sleep();
-            down();
-            sleep();
+            right1();
             drop();
-            sleep();
-            up();
-            sleep();
-            }
-       
+            left();
+            down(700);}
+        }
        
         cout<<"hi4"<<endl;
         if(!(get_up() | get_down() | get_right() | get_left() | get_enter()))
